@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 from .request import Request
 
@@ -25,10 +25,25 @@ class Shlink:
 
     def get_short_url(self, short_code: str):
         return self._get(f"/rest/v3/short-urls/{short_code}")
-
-    def list_visit_data(self, short_code: str):
+         
+    def list_visit_data(self, short_code: str, startDate: Optional[str] = None, endDate: Optional[str] = None, excludeBots: bool = True):
         """
         List all of the visit data
-        :return:
+        :param short_code: The short code of the URL
+        :param startDate: Optional parameter to filter data from a specific start date
+        :param excludeBots: Optional parameter to exclude bot visits (default: True)
+        :return: Visit data
         """
-        return self._get(f"/rest/v3/short-urls/{short_code}/visits")
+        params = []
+        if startDate is not None:
+            params.append(f"startDate={startDate}")
+        if endDate is not None:
+            params.append(f"endDate={endDate}")
+        if excludeBots:
+            params.append("excludeBots=true")
+
+        query_string = '&'.join(params)
+        if query_string:
+            query_string = '?' + query_string
+
+        return self._get(f"/rest/v3/short-urls/{short_code}/visits{query_string}")
